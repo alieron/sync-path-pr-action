@@ -80,9 +80,7 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-# GitHub Actions run from the bundled dist/index.js.
-!dist/
-!dist/**
+dist
 .output
 
 # Gatsby files

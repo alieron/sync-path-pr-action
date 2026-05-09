@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Sync files
-        uses: sebl/sync-path-pr-action@v1
+        uses: sebl/sync-path-pr-action@v1.2.3
         with:
           source-repo: https://github.com/example/source-repo.git
           source-ref: main
@@ -43,9 +43,22 @@ jobs:
 
 For private source repositories, provide a clone URL or runner git configuration that can authenticate to that repository.
 
+Do not use a branch ref such as `@master` or `@main` to consume this action. The default branch does not contain the generated `dist` bundle. Use a release tag such as `@v1.2.3`, or enable the major tag option during release and use `@v1`.
+
+## Releasing
+
+The action bundle is built only by the release workflow. To publish a release:
+
+1. Open the **Release** workflow in the Actions tab.
+2. Run it with a version tag, for example `v1.2.3`.
+3. Leave `create-release` enabled to create a GitHub Release, or disable it to push only the tag.
+4. Enable `update-major-tag` only when you intentionally want to move the matching major tag, for example `v1`.
+
+The workflow runs typechecking, builds `dist`, commits that bundle only on the release tag, pushes the release tag, optionally creates the GitHub Release, and optionally moves the major tag. It does not publish `dist` to the default branch.
+
 ## Testing
 
-For an end-to-end test in a repository that contains this action, add a manual workflow that creates a temporary source repository on the runner and uses `./`:
+For an end-to-end test, first run the release workflow with a temporary test tag such as `v0.0.0-test.1` and `update-major-tag` disabled. Then add this manual workflow to a scratch repository and point `uses` at that tag:
 
 ```yaml
 name: Test sync path PR
@@ -76,7 +89,7 @@ jobs:
           git -C /tmp/sync-source commit -m "Add source file"
 
       - name: Run action
-        uses: ./
+        uses: sebl/sync-path-pr-action@v0.0.0-test.1
         with:
           source-repo: /tmp/sync-source
           source-ref: main
@@ -87,7 +100,7 @@ jobs:
             example.txt
 ```
 
-Run it from the Actions tab. The first run should open a PR. Running it again without changing the source file should update/comment on the existing PR instead of opening another one.
+Run it from the Actions tab. The first run should open a PR. Running it again without changing the source file should update/comment on the existing PR instead of opening another one. Change the source file content in the workflow and run it again to verify that a stale PR is closed with a `#<new-pr-number>` replacement comment.
 
 ## Pull Request Behavior
 
