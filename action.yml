@@ -1,0 +1,51 @@
+name: Sync Path PR
+description: Sync selected files from another git repository into this repository using path-specific pull requests.
+
+inputs:
+  source-repo:
+    description: Git clone URL or path for the source repository.
+    required: true
+
+  source-ref:
+    description: Branch, tag, or commit SHA to copy from in the source repository. Defaults to the source repository default branch.
+    required: false
+    default: ""
+
+  source-path:
+    description: Directory path inside the source repository that contains the files.
+    required: true
+
+  target-path:
+    description: Directory path inside this repository where the files are copied.
+    required: true
+
+  target-ref:
+    description: Branch or ref to use as the pull request base in this repository. Defaults to this repository's default branch.
+    required: false
+    default: ""
+
+  files:
+    description: Newline-separated list of files to sync, relative to source-path and target-path.
+    required: true
+
+  date-format:
+    description: Format used for dates in pull request titles, branches, comments, and bodies. Supported tokens are dd, mm, yy, and yyyy.
+    required: false
+    default: dd-mm-yyyy
+
+  token:
+    description: GitHub token for creating PRs in the destination repo.
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  pr-number:
+    description: Pull request number, when a sync PR exists.
+  pr-url:
+    description: Pull request URL, when a sync PR exists.
+  changed:
+    description: Whether a new PR was created.
+
+runs:
+  using: node20
+  main: dist/index.js
