@@ -33,7 +33,6 @@ jobs:
           source-repo: https://github.com/example/source-repo.git
           source-ref: main
           source-path: config/templates
-          target-ref: main
           target-path: config/templates
           files: |
             app.yml
@@ -55,52 +54,6 @@ The action bundle is built only by the release workflow. To publish a release:
 4. Enable `update-major-tag` only when you intentionally want to move the matching major tag, for example `v1`.
 
 The workflow runs typechecking, builds `dist`, commits that bundle only on the release tag, pushes the release tag, optionally creates the GitHub Release, and optionally moves the major tag. It does not publish `dist` to the default branch.
-
-## Testing
-
-For an end-to-end test, first run the release workflow with a temporary test tag such as `v0.0.0-test.1` and `update-major-tag` disabled. Then add this manual workflow to a scratch repository and point `uses` at that tag:
-
-```yaml
-name: Test sync path PR
-
-on:
-  workflow_dispatch:
-
-permissions:
-  contents: write
-  pull-requests: write
-  issues: write
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Create test source repo
-        run: |
-          git init -b main /tmp/sync-source
-          git -C /tmp/sync-source config user.name "Test"
-          git -C /tmp/sync-source config user.email "test@example.com"
-          mkdir -p /tmp/sync-source/templates
-          echo "hello from source" > /tmp/sync-source/templates/example.txt
-          git -C /tmp/sync-source add templates/example.txt
-          git -C /tmp/sync-source commit -m "Add source file"
-
-      - name: Run action
-        uses: alieron/sync-path-pr-action@v0.0.0-test.1
-        with:
-          source-repo: /tmp/sync-source
-          source-ref: main
-          source-path: templates
-          target-ref: main
-          target-path: synced/templates
-          files: |
-            example.txt
-```
-
-Run it from the Actions tab. The first run should open a PR. Running it again without changing the source file should update/comment on the existing PR instead of opening another one. Change the source file content in the workflow and run it again to verify that a stale PR is closed with a `#<new-pr-number>` replacement comment.
 
 ## Pull Request Behavior
 
