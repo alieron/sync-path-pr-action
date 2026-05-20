@@ -40,27 +40,24 @@ jobs:
           date-format: dd-mm-yyyy
 ```
 
+The destination repository must allow GitHub Actions to create pull requests. In repository settings, enable the workflow permission that lets GitHub Actions create and approve pull requests.
+
 For private source repositories, provide a clone URL or runner git configuration that can authenticate to that repository.
 
 Do not use a branch ref such as `@master` or `@main` to consume this action. The default branch does not contain the generated `dist` bundle. Use a release tag such as `@v1.0.0`, or enable the major tag option during release and use `@v1`.
 
-## Releasing
+## Notes
 
-The action bundle is built only by the release workflow. To publish a release:
+The action only copies the listed files. It does not mirror directories or delete files from the destination that are not listed in `files`.
 
-1. Open the **Release** workflow in the Actions tab.
-2. Run it with a version tag, for example `v1.0.0`.
-3. Leave `create-release` enabled to create a GitHub Release, or disable it to push only the tag.
-4. Enable `update-major-tag` only when you intentionally want to move the matching major tag, for example `v1`.
-
-The workflow runs typechecking, builds `dist`, commits that bundle only on the release tag, pushes the release tag, optionally creates the GitHub Release, and optionally moves the major tag. It does not publish `dist` to the default branch.
+The default branch from the destination repository is used as the pull request base when `target-ref` is not set.
 
 ## Pull Request Behavior
 
 Pull request titles include the destination path, sync ID, and date:
 
 ```text
-Sync config/templates (a1b2c3d4e5f6) - 09-05-2026
+Sync <target-path> (<sync-id>) - <date>
 ```
 
 If an existing sync PR is still current, the action comments that it is up to date and updates the date in the title. If the existing sync PR is stale, the action opens a new PR, comments on the old PR with a link to the new PR, then closes the old PR. New PRs do not reference older PRs.
@@ -90,8 +87,12 @@ If an existing sync PR is still current, the action comments that it is up to da
 | `source-ref` | Resolved source ref copied from the source repository. |
 | `target-ref` | Destination ref used as the pull request base. |
 
-## Notes
+## Releasing
 
-The action only copies the listed files. It does not mirror directories or delete files from the destination that are not listed in `files`.
+The action bundle is built only by the release workflow. To publish a release:
 
-The default branch from the destination repository is used as the pull request base when `target-ref` is not set.
+1. Open the **Release** workflow in the Actions tab.
+2. Run it with a version tag, for example `v1.0.0`.
+3. Enable `update-major-tag` only when you intentionally want to move the matching major tag, for example `v1`.
+
+The workflow runs typechecking, creates or updates the matching release branch, builds `dist`, commits that bundle only on the release branch, pushes the release tag, and optionally moves the major tag. For example, `v1.2.3` is committed and tagged on `release/v1`. It does not publish `dist` to the default branch.
