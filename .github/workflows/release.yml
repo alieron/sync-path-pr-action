@@ -37,33 +37,52 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Build action bundle
-        run: npm run build
-
-      - name: Create release tag
+      - name: Create release branch and tag
         env:
           TAG: ${{ inputs.tag }}
           UPDATE_MAJOR_TAG: ${{ inputs.update-major-tag }}
-          CREATE_RELEASE: ${{ inputs.create-release }}
         run: |
           set -euo pipefail
 
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Tag must use vMAJOR.MINOR.PATCH format, for example v1.2.3."
+            exit 1
+          fi
+
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
             echo "Tag $TAG already exists."
             exit 1
           fi
 
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          if [[ "$TAG" != "v$PACKAGE_VERSION" ]]; then
+            echo "Tag $TAG does not match package.json version $PACKAGE_VERSION."
+            exit 1
+          fi
 
+          SOURCE_SHA="$(git rev-parse HEAD)"
+          MAJOR_TAG="${TAG%%.*}"
+          RELEASE_BRANCH="release/$MAJOR_TAG"
 
+          git config user.email "${{ secrets.GIT_CONFIG_EMAIL }}"
+          git config user.name "${{ secrets.GIT_CONFIG_NAME }}"
+
+          if git ls-remote --exit-code --heads origin "$RELEASE_BRANCH" >/dev/null 2>&1; then
+            git fetch origin "+refs/heads/$RELEASE_BRANCH:refs/remotes/origin/$RELEASE_BRANCH"
+            git switch --track -c "$RELEASE_BRANCH" "origin/$RELEASE_BRANCH"
+            git merge --no-ff --no-edit "$SOURCE_SHA"
+          else
+            git switch -c "$RELEASE_BRANCH" "$SOURCE_SHA"
+          fi
+
+          npm run build
           git add -f dist
           git commit -m "Build action bundle for $TAG"
           git tag -a "$TAG" -m "$TAG"
+          git push origin "refs/heads/$RELEASE_BRANCH"
           git push origin "refs/tags/$TAG"
 
           if [[ "$UPDATE_MAJOR_TAG" == "true" ]]; then
-            MAJOR_TAG="${TAG%%.*}"
             git tag -fa "$MAJOR_TAG" -m "$MAJOR_TAG"
             git push --force origin "refs/tags/$MAJOR_TAG"
           fi
