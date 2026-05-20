@@ -1,5 +1,10 @@
 name: Sync Path PR
-description: Sync selected files from another git repository into this repository using path-specific pull requests.
+description: Sync selected files from another git repository into this
+  repository using path-specific pull requests.
+
+branding:
+  icon: copy
+  color: green
 
 inputs:
   source-repo:
@@ -7,7 +12,8 @@ inputs:
     required: true
 
   source-ref:
-    description: Branch, tag, or commit SHA to copy from in the source repository. Defaults to the source repository default branch.
+    description: Branch, tag, or commit SHA to copy from in the source repository.
+      Defaults to the source repository default branch.
     required: false
     default: ""
 
@@ -20,16 +26,19 @@ inputs:
     required: true
 
   target-ref:
-    description: Branch or ref to use as the pull request base in this repository. Defaults to this repository's default branch.
+    description: Branch or ref to use as the pull request base in this repository.
+      Defaults to this repository's default branch.
     required: false
     default: ""
 
   files:
-    description: Newline-separated list of files to sync, relative to source-path and target-path.
+    description: Newline-separated list of files to sync, relative to source-path
+      and target-path.
     required: true
 
   date-format:
-    description: Format used for dates in pull request titles, branches, comments, and bodies. Supported tokens are dd, mm, yy, and yyyy.
+    description: Format used for dates in pull request titles, branches, comments,
+      and bodies. Supported tokens are dd, mm, yy, and yyyy.
     required: false
     default: dd-mm-yyyy
 
