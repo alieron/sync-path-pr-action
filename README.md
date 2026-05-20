@@ -82,9 +82,13 @@ If an existing sync PR is still current, the action comments that it is up to da
 
 | Output | Description |
 | --- | --- |
-| `changed` | `true` when a new PR was created, otherwise `false`. |
+| `pr-created` | `true` when a new PR was created, otherwise `false`. |
+| `pr-replaced` | `true` when a stale existing sync PR was replaced by a new PR, otherwise `false`. |
 | `pr-number` | Pull request number when a sync PR exists. |
 | `pr-url` | Pull request URL when a sync PR exists. |
+| `sync-id` | Stable identifier for this sync configuration. |
+| `source-ref` | Resolved source ref copied from the source repository. |
+| `target-ref` | Destination ref used as the pull request base. |
 
 ## Notes
 

@@ -43,8 +43,16 @@ outputs:
     description: Pull request number, when a sync PR exists.
   pr-url:
     description: Pull request URL, when a sync PR exists.
-  changed:
+  pr-created:
     description: Whether a new PR was created.
+  pr-replaced:
+    description: Whether a stale existing sync PR was replaced by a new PR.
+  sync-id:
+    description: Stable identifier for this sync configuration.
+  source-ref:
+    description: Resolved source ref copied from the source repository.
+  target-ref:
+    description: Destination ref used as the pull request base.
 
 runs:
   using: node20

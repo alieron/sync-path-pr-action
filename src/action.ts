@@ -120,6 +120,7 @@ export async function runSyncPathPrAction(args: {
     );
     const refs = { sourceRef, targetRef: args.targetRef };
     const identity = buildSyncIdentity(args.inputs, refs);
+    setResolvedSyncOutputs(identity, refs);
 
     const latestSyncPr = await findLatestSyncPr(
       args.octokit,
@@ -152,7 +153,8 @@ export async function runSyncPathPrAction(args: {
           date
         );
 
-        core.setOutput("changed", "false");
+        core.setOutput("pr-created", "false");
+        core.setOutput("pr-replaced", "false");
         core.setOutput("pr-number", String(latestSyncPr.number));
         core.setOutput("pr-url", latestSyncPr.htmlUrl);
         core.info(`Existing PR #${latestSyncPr.number} is up to date.`);
@@ -191,7 +193,8 @@ export async function runSyncPathPrAction(args: {
       }
 
       core.info("No changes found against the base branch. No PR created.");
-      core.setOutput("changed", "false");
+      core.setOutput("pr-created", "false");
+      core.setOutput("pr-replaced", "false");
       return;
     }
 
@@ -208,7 +211,8 @@ export async function runSyncPathPrAction(args: {
       core.info(`Closed PR #${latestSyncPr.number} because its no longer up to date.`);
     }
 
-    core.setOutput("changed", "true");
+    core.setOutput("pr-created", "true");
+    core.setOutput("pr-replaced", latestSyncPr ? "true" : "false");
     core.setOutput("pr-number", String(createdPr.number));
     core.setOutput("pr-url", createdPr.htmlUrl);
 
@@ -216,6 +220,12 @@ export async function runSyncPathPrAction(args: {
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true });
   }
+}
+
+function setResolvedSyncOutputs(identity: SyncIdentity, refs: ResolvedRefs): void {
+  core.setOutput("sync-id", identity.id);
+  core.setOutput("source-ref", refs.sourceRef);
+  core.setOutput("target-ref", refs.targetRef);
 }
 
 // Apply latest source files onto existing PR head and report if still current.
