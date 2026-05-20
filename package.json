@@ -1,6 +1,6 @@
 {
   "name": "sync-path-pr-action",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Sync a file or directory from another repository into this repository using a rolling pull request.",
   "main": "dist/index.js",
