@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Sync files
-        uses: alieron/sync-path-pr-action@v1.2.3
+        uses: alieron/sync-path-pr-action@v1.0.0
         with:
           source-repo: https://github.com/example/source-repo.git
           source-ref: main
@@ -42,14 +42,14 @@ jobs:
 
 For private source repositories, provide a clone URL or runner git configuration that can authenticate to that repository.
 
-Do not use a branch ref such as `@master` or `@main` to consume this action. The default branch does not contain the generated `dist` bundle. Use a release tag such as `@v1.2.3`, or enable the major tag option during release and use `@v1`.
+Do not use a branch ref such as `@master` or `@main` to consume this action. The default branch does not contain the generated `dist` bundle. Use a release tag such as `@v1.0.0`, or enable the major tag option during release and use `@v1`.
 
 ## Releasing
 
 The action bundle is built only by the release workflow. To publish a release:
 
 1. Open the **Release** workflow in the Actions tab.
-2. Run it with a version tag, for example `v1.2.3`.
+2. Run it with a version tag, for example `v1.0.0`.
 3. Leave `create-release` enabled to create a GitHub Release, or disable it to push only the tag.
 4. Enable `update-major-tag` only when you intentionally want to move the matching major tag, for example `v1`.
 
